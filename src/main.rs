@@ -51,7 +51,7 @@ fn main() {
         process::exit(1);
     }
     if (start*time_frame + 2.0*limit*time_frame - 3.0*hour_goal) / time_frame.powf(3.0) < 0.0 {
-        eprintln!("hour goal is set too high. should be below {}", limit*time_frame);
+        eprintln!("hour goal is set too high. should be below {}", (start*time_frame + 2.0*limit*time_frame) / 3.0);
         process::exit(1);
     }
 
