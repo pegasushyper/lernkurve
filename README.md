@@ -9,3 +9,14 @@ Download the repository.
 Run `cargo build --release`
 
 The executable will be stored in `./target/release/`
+
+```bash
+git clone https://github.com/pegasushyper/lernkurve.git
+cd lernkurve/
+cargo build --release
+cd target/release/
+```
+
+## Dependency
+
+Rust
