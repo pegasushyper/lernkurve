@@ -1,18 +1,18 @@
+use std::process;
 use text_io::read;
 
-fn get_coefficients(start: f64, limit: f64, time_frame: f64, hour_goal: f64) -> (f64, f64, f64) {
+fn get_coefficients(start: f64, time_frame: f64, hour_goal: f64) -> (f64, f64, f64) {
     let st = start * time_frame;
-    let lt = limit * time_frame;
 
     let t3 = |num| 3.0 * num;
 
-    let a = (t3(st) + t3(lt) - t3(2.0*hour_goal)) / time_frame.powf(3.0);
+    let a = (t3(st) - t3(hour_goal)) / (2.0*time_frame.powf(3.0));
 
-    let tn2 = |num| -2.0 * num;
+    let tn3 = |num| -3.0 * num;
 
-    let b = (tn2(2.0*st) + tn2(lt) - tn2(3.0*hour_goal)) / time_frame.powf(2.0);
+    let b = (tn3(st) - tn3(hour_goal)) / time_frame.powf(2.0);
 
-    let c = start.into();
+    let c = start;
 
     (a, b, c)
 }
@@ -23,12 +23,37 @@ fn main() {
 
     print!("h/d maximum ");
     let limit: f64 = read!("{}\n");
+    if start - limit >= 0.0 {
+        eprintln!("limit must be greater than starting time");
+        process::exit(1);
+    }
 
     print!("how long will the streak go ");
     let time_frame: f64 = read!("{}\n");
+    if time_frame <= 0.0 {
+        eprintln!("time frame must be positive");
+        process::exit(1);
+    }
 
     print!("what total amount of hours you want to reach ");
     let hour_goal: f64 = read!("{}\n");
+
+    if start - limit >= 0.0 {
+        eprintln!("limit is greater than starting time");
+        process::exit(1);
+    }
+    if (start*time_frame - hour_goal) / time_frame.powf(3.0) >= 0.0 {
+        eprintln!("hour goal is set too low. should be at least {}", start*time_frame);
+        process::exit(1);
+    }
+    if time_frame <= 0.0 {
+        eprintln!("time frame must be positive");
+        process::exit(1);
+    }
+    if (start*time_frame + 2.0*limit*time_frame - 3.0*hour_goal) / time_frame.powf(3.0) < 0.0 {
+        eprintln!("hour goal is set too high. should be below {}", limit*time_frame);
+        process::exit(1);
+    }
 
     print!("how many increments ");
     let steps: u8 = read!("{}\n");
@@ -36,13 +61,9 @@ fn main() {
     print!("want additional output Y/n ");
     let add_out: String = read!("{}\n");
 
-    if start * time_frame > hour_goal {
-        println!("Your hour goal is set too low. This might lead to weird results. With your minimum h/d you want to go above {}", start*time_frame);
-    }
-
     println!("---");
 
-    let (a, b, c) = get_coefficients(start, limit, time_frame, hour_goal);
+    let (a, b, c) = get_coefficients(start, time_frame, hour_goal);
 
     let apply_f = |x: f64| a*x.powf(2.0) + b*x + c;
 
